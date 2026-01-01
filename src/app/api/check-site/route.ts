@@ -292,6 +292,27 @@ export async function POST(request: Request) {
                         } catch (e) {}
                     }
 
+                    // Fetch Icon Content (Proxy to avoid CORS)
+                    if (icon) {
+                        try {
+                            const iconRes = await fetch(icon, { 
+                                signal: AbortSignal.timeout(3000), // 3s timeout
+                                headers: {
+                                    'User-Agent': 'Mozilla/5.0 (compatible; WebSecurityInspector/1.0)'
+                                }
+                            });
+                            if (iconRes.ok) {
+                                const arrayBuffer = await iconRes.arrayBuffer();
+                                const buffer = Buffer.from(arrayBuffer);
+                                const contentType = iconRes.headers.get('content-type') || 'image/x-icon';
+                                icon = `data:${contentType};base64,${buffer.toString('base64')}`;
+                            }
+                        } catch (e) {
+                            // Ignore fetch errors, keep original URL
+                            console.log('Failed to fetch icon:', e);
+                        }
+                    }
+
                     // Fetch IP Geo Info
                     let ipInfo = undefined
                     if (remoteIP) {

@@ -17,6 +17,7 @@ const PRESET_SITES = [
   { name: 'Google', url: 'https://www.google.com' },
   { name: 'Bing', url: 'https://www.bing.com' },
   { name: 'Baidu', url: 'https://www.baidu.com' },
+  { name: 'Bilibili', url: 'https://www.bilibili.com' },
   { name: 'Github', url: 'https://github.com' },
   { name: 'Pixiv', url: 'https://www.pixiv.net' },
 ]
