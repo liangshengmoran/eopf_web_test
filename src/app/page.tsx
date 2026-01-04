@@ -603,7 +603,7 @@ export default function Home() {
                  <CardContent>
                      <div className="bg-slate-950 text-slate-50 p-4 rounded-md text-xs font-mono overflow-x-auto max-h-60">
                          {result.headers ? (
-                             Object.entries(result.headers).slice(0, 10).map(([k, v]) => (
+                             Object.entries(result.headers).slice(0, 100).map(([k, v]) => (
                                  <div key={k} className="mb-1">
                                      <span className="text-blue-400">{k}:</span> <span className="text-green-400 break-all">{v}</span>
                                  </div>
@@ -611,7 +611,7 @@ export default function Home() {
                          ) : (
                              <span className="text-gray-500">无可用响应头</span>
                          )}
-                         {result.headers && Object.keys(result.headers).length > 10 && (
+                         {result.headers && Object.keys(result.headers).length > 100 && (
                              <div className="text-gray-500 mt-2">... 更多</div>
                          )}
                      </div>
