@@ -12,7 +12,6 @@ import { ModeToggle } from '@/components/mode-toggle'
 import { SiteInfo } from './api/check-site/route'
 
 const PRESET_SITES = [
-  { name: 'AcoFork Blog', url: 'https://blog.acofork.com' },
   { name: 'Cloudflare', url: 'https://www.cloudflare.com' },
   { name: 'Google', url: 'https://www.google.com' },
   { name: 'Bing', url: 'https://www.bing.com' },
@@ -509,27 +508,27 @@ export default function Home() {
         
         {/* Footer */}
         <div className="text-center text-sm text-gray-500 dark:text-gray-400 mt-12 pb-8 space-y-2">
-            <div className="flex items-center justify-center gap-4">
-                <a 
-                    href="https://github.com/afoim/eopf_web_test" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="flex items-center hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
-                >
-                    <Github className="w-4 h-4 mr-1.5" />
-                    <span>开源项目</span>
-                </a>
-                <span className="text-gray-300 dark:text-gray-700">|</span>
-                <a 
-                    href="https://space.bilibili.com/325903362" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="flex items-center hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
-                >
-                    <User className="w-4 h-4 mr-1.5" />
-                    <span>作者主页</span>
-                </a>
-            </div>
+            {/*<div className="flex items-center justify-center gap-4">*/}
+            {/*    <a */}
+            {/*        href="https://github.com/afoim/eopf_web_test" */}
+            {/*        target="_blank" */}
+            {/*        rel="noopener noreferrer"*/}
+            {/*        className="flex items-center hover:text-gray-900 dark:hover:text-gray-100 transition-colors"*/}
+            {/*    >*/}
+            {/*        <Github className="w-4 h-4 mr-1.5" />*/}
+            {/*        <span>开源项目</span>*/}
+            {/*    </a>*/}
+            {/*    <span className="text-gray-300 dark:text-gray-700">|</span>*/}
+            {/*    <a */}
+            {/*        href="https://space.bilibili.com/325903362" */}
+            {/*        target="_blank" */}
+            {/*        rel="noopener noreferrer"*/}
+            {/*        className="flex items-center hover:text-gray-900 dark:hover:text-gray-100 transition-colors"*/}
+            {/*    >*/}
+            {/*        <User className="w-4 h-4 mr-1.5" />*/}
+            {/*        <span>作者主页</span>*/}
+            {/*    </a>*/}
+            {/*</div>*/}
             <p className="text-xs text-gray-400">
                  &copy; {new Date().getFullYear()} Website Security Inspector.            </p>
         </div>
