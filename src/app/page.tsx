@@ -601,7 +601,7 @@ export default function Home() {
                      <CardTitle className="text-sm font-medium">响应头 (部分)</CardTitle>
                  </CardHeader>
                  <CardContent>
-                     <div className="bg-slate-950 text-slate-50 p-4 rounded-md text-xs font-mono overflow-x-auto max-h-60">
+                     <div className="bg-slate-950 text-slate-50 p-4 rounded-md text-xs font-mono overflow-x-auto max-h-60 hide-scrollbar">
                          {result.headers ? (
                              Object.entries(result.headers).slice(0, 100).map(([k, v]) => (
                                  <div key={k} className="mb-1">
