@@ -184,7 +184,6 @@ img, svg, [class*="icon"] {
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* 防止过渡影响性能 */
 @media (prefers-reduced-motion: reduce) {
   .theme-transition,
   .transition-colors-slow,
@@ -192,4 +191,20 @@ img, svg, [class*="icon"] {
   .transition-colors-fast {
     transition-duration: 0.01ms !important;
   }
+}
+
+html {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  scroll-behavior: smooth;
+}
+
+html::-webkit-scrollbar {
+  display: none;
+}
+
+body {
+  -ms-overflow-style: none;
+  overflow-y: scroll;
+  overflow-x: hidden;
 }
