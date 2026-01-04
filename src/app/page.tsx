@@ -43,6 +43,7 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null)
   const [probeInfo, setProbeInfo] = useState<ProbeInfo | null>(null)
   const [history, setHistory] = useState<string[]>([])
+  const [testedUrls, setTestedUrls] = useState<string[]>([])
 
   useEffect(() => {
     const saved = localStorage.getItem('site_check_history')
@@ -77,21 +78,35 @@ export default function Home() {
       .catch(console.error)
   }, [])
 
-  const checkUrl = async (targetUrl: string) => {
-    if (!targetUrl) return
+  const normalizeUrl = (urlString: string): string[] => {
+    let urlsToTest: string[] = []
+    const trimmedUrl = urlString.trim()
 
-    setLoading(true)
-    setError(null)
-    setResult(null)
-    setUrl(targetUrl)
+    if (!trimmedUrl) return []
 
+    // 如果已经包含协议，直接返回
+    if (trimmedUrl.startsWith('http://') || trimmedUrl.startsWith('https://')) {
+      return [trimmedUrl]
+    }
+
+    // 尝试添加 https://
+    urlsToTest.push(`https://${trimmedUrl}`)
+
+    // 也尝试 http://（但优先https）
+    urlsToTest.push(`http://${trimmedUrl}`)
+
+    return urlsToTest
+  }
+
+  // 自动协议功能 - 检查单个URL
+  const checkSingleUrl = async (urlToCheck: string): Promise<SiteInfo> => {
     try {
       const response = await fetch('/api/check-site', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ url: targetUrl }),
+        body: JSON.stringify({ url: urlToCheck }),
       })
 
       if (!response.ok) {
@@ -99,14 +114,78 @@ export default function Home() {
       }
 
       const data = await response.json()
-      if (data.error) {
-        setError(data.error)
+      // 检查是否成功（没有error字段或者statusCode在200-399之间）
+      const isSuccess = !data.error &&
+          (data.statusCode === undefined ||
+              (data.statusCode >= 200 && data.statusCode < 400))
+
+      if (!isSuccess) {
+        throw new Error(data.error || `请求失败，状态码: ${data.statusCode}`)
+      }
+
+      return data
+    } catch (err: any) {
+      throw new Error(`检测 ${urlToCheck} 失败: ${err.message || String(err)}`)
+    }
+  }
+
+  // 自动协议功能 - 修改了checkUrl函数
+  const checkUrl = async (targetUrl: string) => {
+    if (!targetUrl.trim()) {
+      setError('请输入要检测的URL')
+      return
+    }
+
+    setLoading(true)
+    setError(null)
+    setResult(null)
+    setTestedUrls([]) // 自动协议功能 - 清空测试过的URL
+
+    // 自动协议功能 - 获取要测试的URL列表
+    const urlsToTest = normalizeUrl(targetUrl)
+
+    if (urlsToTest.length === 0) {
+      setError('无效的URL')
+      setLoading(false)
+      return
+    }
+
+    // 自动协议功能 - 设置当前显示的用户输入（原始输入）
+    setUrl(targetUrl)
+
+    // 自动协议功能 - 记录测试过的URL
+    const tested: string[] = []
+
+    try {
+      let successfulResult: SiteInfo | null = null
+
+      // 自动协议功能 - 按顺序测试URL（优先https）
+      for (const testUrl of urlsToTest) {
+        tested.push(testUrl)
+        setTestedUrls([...tested])
+
+        try {
+          const result = await checkSingleUrl(testUrl)
+          successfulResult = result
+          successfulResult.url = testUrl // 确保使用正确的URL
+
+          // 自动协议功能 - 如果成功，记录实际使用的URL
+          setUrl(testUrl)
+          break // 成功就停止测试
+        } catch (err) {
+          // 继续测试下一个协议
+          continue
+        }
+      }
+
+      if (successfulResult) {
+        setResult(successfulResult)
+        addToHistory(successfulResult.url)
       } else {
-        setResult(data)
-        addToHistory(targetUrl)
+        setError(`无法访问该网站。尝试过的地址：${tested.join(', ')}`)
       }
     } catch (err: any) {
-      setError(`发生意外错误: ${err.message || String(err)}`)
+      setError(err.message || '检测过程中发生错误')
     } finally {
       setLoading(false)
     }
@@ -117,6 +196,10 @@ export default function Home() {
     checkUrl(url)
   }
 
+  // 自动协议功能 - 快速检测函数（用于预设和历史记录）
+  const quickCheck = (targetUrl: string) => {
+    checkUrl(targetUrl)
+  }
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8 relative transition-colors duration-300">
       <div className="absolute top-4 right-4">
@@ -146,12 +229,14 @@ export default function Home() {
         <Card className="w-full shadow-lg">
           <CardHeader>
             <CardTitle>输入网站 URL</CardTitle>
-            <CardDescription>必须包含 http:// 或 https://，且不跟随重定向</CardDescription>
+            <CardDescription>
+              支持直接输入域名（如：example.com），系统会自动尝试添加协议
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="flex gap-4">
               <Input
-                placeholder="https://example.com"
+                placeholder="输入网址或域名（如：example.com 或 https://example.com）"
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
                 className="flex-1"
@@ -168,6 +253,26 @@ export default function Home() {
               </Button>
             </form>
 
+            {loading && testedUrls.length > 0 && (
+                <div className="mt-4 text-sm text-muted-foreground">
+                  <p className="flex items-center gap-1">
+                    <Info className="w-3 h-3" />
+                    正在测试:
+                  </p>
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {testedUrls.map((testUrl, index) => (
+                        <Badge
+                            key={index}
+                            variant="outline"
+                            className="text-xs font-mono"
+                        >
+                          {testUrl}
+                        </Badge>
+                    ))}
+                  </div>
+                </div>
+            )}
+
             <div className="mt-6 space-y-4">
               <div>
                 <p className="text-sm font-medium text-muted-foreground mb-2">常用检测</p>
@@ -177,7 +282,7 @@ export default function Home() {
                       key={site.name} 
                       variant="secondary" 
                       className="cursor-pointer hover:bg-secondary/80 transition-colors"
-                      onClick={() => checkUrl(site.url)}
+                      onClick={() => quickCheck(site.url)}
                     >
                       {site.name}
                     </Badge>
@@ -206,7 +311,7 @@ export default function Home() {
                         key={hUrl} 
                         variant="outline" 
                         className="cursor-pointer hover:bg-muted transition-colors font-normal max-w-[200px] truncate"
-                        onClick={() => checkUrl(hUrl)}
+                        onClick={() => quickCheck(hUrl)}
                         title={hUrl}
                       >
                         {hUrl.replace(/^https?:\/\//, '').replace(/\/$/, '')}
@@ -238,6 +343,16 @@ export default function Home() {
               <CardContent>
                 <div className="mt-4 space-y-4">
                   <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">检测地址</span>
+                    <Badge
+                        variant="secondary"
+                        className="font-mono text-xs max-w-[200px] truncate"
+                        title={result.url}
+                    >
+                      {result.url}
+                    </Badge>
+                  </div>
+                  <div className="flex items-center justify-between">
                     <span className="text-sm font-medium">状态码</span>
                     <Badge variant={result.statusCode && result.statusCode < 400 ? "outline" : "destructive"}>
                         {result.statusCode || '未知'}
@@ -253,7 +368,7 @@ export default function Home() {
                                 variant="ghost" 
                                 size="sm" 
                                 className="h-6 px-2 text-xs hover:bg-background border border-transparent hover:border-border"
-                                onClick={() => checkUrl(result.redirectLocation!)}
+                                onClick={() => quickCheck(result.redirectLocation!)}
                             >
                                 检测此地址 <ArrowRight className="ml-1 w-3 h-3" />
                             </Button>
