@@ -44,8 +44,10 @@ export default function Home() {
   const [probeInfo, setProbeInfo] = useState<ProbeInfo | null>(null)
   const [history, setHistory] = useState<string[]>([])
   const [testedUrls, setTestedUrls] = useState<string[]>([])
+  const [isMounted, setIsMounted] = useState(false)
 
   useEffect(() => {
+    setIsMounted(true)
     const saved = localStorage.getItem('site_check_history')
     if (saved) {
       try {
@@ -201,7 +203,7 @@ export default function Home() {
     checkUrl(targetUrl)
   }
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8 relative transition-colors duration-300">
+    <div className={`min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8 relative theme-transition duration-500 ${isMounted ? 'opacity-100' : 'opacity-0'} transition-opacity duration-700`}>
       <div className="absolute top-4 right-4">
         <ModeToggle />
       </div>
@@ -226,7 +228,7 @@ export default function Home() {
           </div>
         </div>
 
-        <Card className="w-full shadow-lg">
+        <Card className="w-full shadow-lg theme-transition">
           <CardHeader>
             <CardTitle>输入网站 URL</CardTitle>
             <CardDescription>
@@ -335,7 +337,7 @@ export default function Home() {
         {result && !result.error && (
           <div className="grid gap-6 md:grid-cols-2">
             {/* Connection Info */}
-            <Card>
+            <Card className="theme-transition">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">连接支持</CardTitle>
                 <Server className="h-4 w-4 text-muted-foreground" />
@@ -441,7 +443,7 @@ export default function Home() {
             </Card>
 
             {/* Timings Info */}
-            <Card className="md:col-span-1">
+            <Card className="md:col-span-1 theme-transition">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">连接耗时</CardTitle>
                 <Timer className="h-4 w-4 text-muted-foreground" />
@@ -499,7 +501,7 @@ export default function Home() {
             </Card>
 
             {/* Certificate Info */}
-            <Card className="md:col-span-1">
+            <Card className="md:col-span-1 theme-transition">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">SSL 证书</CardTitle>
                 <Shield className="h-4 w-4 text-muted-foreground" />
@@ -539,7 +541,7 @@ export default function Home() {
             </Card>
             
             {/* Site Info */}
-            <Card className="md:col-span-1">
+            <Card className="md:col-span-1 theme-transition">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">站点信息</CardTitle>
                 <Info className="h-4 w-4 text-muted-foreground" />
@@ -596,7 +598,7 @@ export default function Home() {
             </Card>
 
              {/* Headers Info (Optional, but useful) */}
-             <Card className="md:col-span-2">
+             <Card className="md:col-span-2 theme-transition">
                  <CardHeader>
                      <CardTitle className="text-sm font-medium">响应头 (部分)</CardTitle>
                  </CardHeader>

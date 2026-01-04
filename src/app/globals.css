@@ -132,3 +132,64 @@
 .hide-scrollbar::-webkit-scrollbar {
   display: none !important;
 }
+
+.theme-transition {
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 500ms;
+}
+
+.bg-background, .bg-card, .bg-popover, .bg-primary, .bg-secondary,
+.text-foreground, .text-card-foreground, .text-primary-foreground,
+.border-border {
+  transition: background-color 0.5s ease-in-out,
+  color 0.5s ease-in-out,
+  border-color 0.5s ease-in-out !important;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  transition: background-color 0.3s ease;
+}
+
+input, textarea, button, select {
+  transition: background-color 0.2s ease,
+  border-color 0.2s ease,
+  color 0.2s ease;
+}
+
+img, svg, [class*="icon"] {
+  transition: opacity 0.3s ease,
+  transform 0.3s ease;
+}
+
+.transition-colors-slow {
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-duration: 700ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.transition-colors-medium {
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-duration: 400ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.transition-colors-fast {
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-duration: 200ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 防止过渡影响性能 */
+@media (prefers-reduced-motion: reduce) {
+  .theme-transition,
+  .transition-colors-slow,
+  .transition-colors-medium,
+  .transition-colors-fast {
+    transition-duration: 0.01ms !important;
+  }
+}
